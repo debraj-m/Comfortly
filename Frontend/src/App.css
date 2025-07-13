@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .animate-pulse {
+    animation: pulse 2s infinite;
+  }
+  .animate-bounce {
+    animation: bounce 1.8s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scale(1.04);
+      opacity: 1;
+    }
+  }
+}
+
+
+@keyframes aurora-bg {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+}
+
+.animate-aurora-bg {
+  animation: aurora-bg 30s linear infinite;
+}
+
+
+@keyframes pulse-ring {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.4;
+  }
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-down-fade {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(150px);
+    opacity: 1;
+  }
+}
+@keyframes slide-down-shrink {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(140px) scale(0.75);
+  }
+}
+
+@keyframes slide-up-grow {
+  0% {
+    transform: translateY(140px) scale(0.75);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(-30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.3s ease-out forwards;
+}
+
+@keyframes avatar-slide-up {
+  0% {
+    transform: translateY(300px);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(150px);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-in-side {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-side {
+  animation: slide-in-side 1s ease-out forwards;
+}
+
+.animate-avatar-up {
+  animation: avatar-slide-up 0.9s ease-out forwards;
+}
+
+
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s ease-out forwards;
+}
+
+
+.animate-slide-in {
+  animation: slide-in 0.9s ease-out forwards;
+}
+
+
+/* Classes */
+.animate-slide-down-shrink {
+  animation: slide-down-shrink 0.7s ease-out forwards;
+}
+
+.animate-slide-up-grow {
+  animation: slide-up-grow 0.7s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+
+.animate-slide-down {
+  animation: slide-down-fade 0.7s ease forwards;
+}
+
+/* Utility classes to use in JSX */
+.animate-pulse-ring {
+  animation: pulse-ring 2s infinite ease-in-out;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 6s linear infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}

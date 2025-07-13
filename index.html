@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebRTC Voice Agent</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+      }
+      #status {
+        font-size: 20px;
+        margin: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>WebRTC Voice Agent</h1>
+    <p id="status">Disconnected</p>
+    <button id="connect-btn">Connect</button>
+    <audio id="audio-el" autoplay></audio>
+
+    <script>
+      const statusEl = document.getElementById("status");
+      const buttonEl = document.getElementById("connect-btn");
+      const audioEl = document.getElementById("audio-el");
+
+      let connected = false;
+      let peerConnection = null;
+
+      const waitForIceGatheringComplete = async (pc, timeoutMs = 2000) => {
+        if (pc.iceGatheringState === "complete") return;
+        console.log(
+          "Waiting for ICE gathering to complete. Current state:",
+          pc.iceGatheringState
+        );
+        return new Promise((resolve) => {
+          let timeoutId;
+          const checkState = () => {
+            console.log("icegatheringstatechange:", pc.iceGatheringState);
+            if (pc.iceGatheringState === "complete") {
+              cleanup();
+              resolve();
+            }
+          };
+          const onTimeout = () => {
+            console.warn(`ICE gathering timed out after ${timeoutMs} ms.`);
+            cleanup();
+            resolve();
+          };
+          const cleanup = () => {
+            pc.removeEventListener("icegatheringstatechange", checkState);
+            clearTimeout(timeoutId);
+          };
+          pc.addEventListener("icegatheringstatechange", checkState);
+          timeoutId = setTimeout(onTimeout, timeoutMs);
+          // Checking the state again to avoid any eventual race condition
+          checkState();
+        });
+      };
+
+      const createSmallWebRTCConnection = async (audioTrack) => {
+        const config = {
+          iceServers: [],
+        };
+        const pc = new RTCPeerConnection(config);
+        addPeerConnectionEventListeners(pc);
+        pc.ontrack = (e) => (audioEl.srcObject = e.streams[0]);
+        // SmallWebRTCTransport expects to receive both transceivers
+        pc.addTransceiver(audioTrack, { direction: "sendrecv" });
+        pc.addTransceiver("video", { direction: "sendrecv" });
+        await pc.setLocalDescription(await pc.createOffer());
+        await waitForIceGatheringComplete(pc);
+        const offer = pc.localDescription;
+        const response = await fetch(
+          `/api/offer?token=${await authenticateUser()}`,
+          {
+            body: JSON.stringify({ sdp: offer.sdp, type: offer.type }),
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
+          }
+        );
+        const answer = await response.json();
+        await pc.setRemoteDescription(answer);
+        return pc;
+      };
+
+      const connect = async () => {
+        _onConnecting();
+        const audioStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        peerConnection = await createSmallWebRTCConnection(
+          audioStream.getAudioTracks()[0]
+        );
+      };
+
+      async function authenticateUser() {
+        try {
+          // Collect email and password from the form
+          const email = "user@gmail.com";
+          const password = "1234";
+
+          // Make the POST request to the Supabase endpoint
+          const response = await fetch(
+            "https://ynyatndehtvknyaewbif.supabase.co/auth/v1/token?grant_type=password",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                apikey:
+                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlueWF0bmRlaHR2a255YWV3YmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzMzA2NzIsImV4cCI6MjA2NzkwNjY3Mn0.Pe9-FzkhuANpUNkQY96RIcCz6dnNzjkzWwQRCkJgrek",
+              },
+              body: JSON.stringify({ email, password }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`Authentication failed: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          const accessToken = data.access_token;
+
+          // Store the access token for use in subsequent requests
+
+          return accessToken;
+        } catch (error) {
+          console.log(`Error during authentication: ${error.message}`);
+        }
+      }
+
+      const addPeerConnectionEventListeners = (pc) => {
+        pc.oniceconnectionstatechange = () => {
+          console.log("oniceconnectionstatechange", pc?.iceConnectionState);
+        };
+        pc.onconnectionstatechange = () => {
+          console.log("onconnectionstatechange", pc?.connectionState);
+          let connectionState = pc?.connectionState;
+          if (connectionState === "connected") {
+            _onConnected();
+          } else if (connectionState === "disconnected") {
+            _onDisconnected();
+          }
+        };
+        pc.onicecandidate = (event) => {
+          if (event.candidate) {
+            console.log("New ICE candidate:", event.candidate);
+          } else {
+            console.log("All ICE candidates have been sent.");
+          }
+        };
+      };
+
+      const _onConnecting = () => {
+        statusEl.textContent = "Connecting";
+        buttonEl.textContent = "Disconnect";
+        connected = true;
+      };
+
+      const _onConnected = () => {
+        statusEl.textContent = "Connected";
+        buttonEl.textContent = "Disconnect";
+        connected = true;
+      };
+
+      const _onDisconnected = () => {
+        statusEl.textContent = "Disconnected";
+        buttonEl.textContent = "Connect";
+        connected = false;
+      };
+
+      const disconnect = () => {
+        if (!peerConnection) {
+          return;
+        }
+        peerConnection.close();
+        peerConnection = null;
+        _onDisconnected();
+      };
+
+      buttonEl.addEventListener("click", async () => {
+        if (!connected) {
+          await connect();
+        } else {
+          disconnect();
+        }
+      });
+    </script>
+  </body>
+</html>
