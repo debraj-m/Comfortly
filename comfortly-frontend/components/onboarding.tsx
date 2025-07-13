@@ -8,13 +8,15 @@ import { saveOnboarding } from "@/app/onboarding/actions";
 import { useRouter } from "next/navigation";
 
 const preferencesList = [
-	{ label: "Coding & developing", icon: "</>" },
-	{ label: "Learning & studying", icon: "🎓" },
-	{ label: "Writing & content creation", icon: "✍️" },
-	{ label: "Business & strategy", icon: "💼" },
-	{ label: "Design & creativity", icon: "🎨" },
-	{ label: "Life stuff", icon: "☕" },
-	{ label: "Comfortly's choice", icon: "💡" },
+	{ label: "Feeling Stressed", icon: "😣" },
+	{ label: "Feeling Sad or Low", icon: "😔" },
+	{ label: "Feeling Angry or Frustrated", icon: "😡" },
+	{ label: "Feeling Anxious", icon: "😰" },
+	{ label: "Feeling Lonely", icon: "🥺" },
+	{ label: "Feeling Happy & Energetic", icon: "😄" },
+	{ label: "Just Need a Distraction", icon: "🌀" },
+	{ label: "Need Motivation", icon: "🚀" },
+	{ label: "Comfortly's Choice", icon: "💡" }
 ];
 
 export default function Onboarding() {
@@ -234,8 +236,8 @@ export default function Onboarding() {
 										prev.includes(pref.label)
 											? prev.filter((p) => p !== pref.label)
 											: prev.length < 3
-											? [...prev, pref.label]
-											: prev
+												? [...prev, pref.label]
+												: prev
 									);
 								}}
 								aria-pressed={preferences.includes(pref.label)}

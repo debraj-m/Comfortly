@@ -1,73 +1,117 @@
+"use client";
+import { useEffect, useState } from "react";
+import { BsThreeDots } from "react-icons/bs";
 import { LoginForm } from "@/components/login-form";
-import Image from "next/image";
+
+const mockMessages = [
+  { sender: "user", text: "Hi Comfortly! I'm feeling kinda off today." },
+  { sender: "bot", text: "I'm here for you. Would you like to reflect or relax?" },
+  { sender: "user", text: "Maybe a bit of both." },
+  { sender: "bot", text: "Let’s start with something calming. Here’s a breathing guide 💨" },
+];
+
+function LiveChatPreview() {
+  const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);
+  const [index, setIndex] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    let loopTimer: NodeJS.Timeout;
+
+    if (index < mockMessages.length) {
+      setIsTyping(true);
+      const timer = setTimeout(() => {
+        setMessages((prev) => [...prev, mockMessages[index]]);
+        setIndex(index + 1);
+        setIsTyping(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    } else {
+      // Restart chat loop after a short pause
+      loopTimer = setTimeout(() => {
+        setMessages([]);
+        setIndex(0);
+      }, 4000);
+    }
+
+    return () => clearTimeout(loopTimer);
+  }, [index]);
+
+  return (
+    <div className="w-[420px] max-w-full p-0 rounded-2xl bg-[#ECE9E1] shadow-lg h-[520px] mt-4 overflow-y-auto border border-[#B1ADA1] flex flex-col">
+  {/* Chat Header */}
+  <div className="flex items-center justify-between px-4 py-3 border-b border-[#B1ADA1] bg-[#F4F3EE] rounded-t-2xl">
+    <div className="flex items-center space-x-2">
+      <span className="text-xl text-[#C15F3C]">★</span>
+      <span className="font-semibold text-[#222] text-lg font-poppins">Comfortly</span>
+    </div>
+    {/* Optional: Status dot */}
+    <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" title="Online" />
+  </div>
+
+  {/* Chat Messages */}
+  <div className="flex flex-col gap-3 flex-grow px-4 py-3">
+    {messages.map((msg, idx) => (
+      <div
+        key={idx}
+        className={`px-4 py-3 rounded-xl text-base w-fit max-w-[80%] ${
+          msg.sender === "user"
+            ? "bg-[#FFF0E6] self-end border border-[#C15F3C] text-[#222]"
+            : "bg-white self-start border border-[#B1ADA1] text-[#222]"
+        }`}
+      >
+        {msg.text}
+      </div>
+    ))}
+
+    {isTyping && (
+      <div className="px-4 py-2 bg-white border border-[#B1ADA1] rounded-xl w-fit flex items-center gap-1">
+        <BsThreeDots className="text-[#B1ADA1] text-xl animate-bounce" />
+        <BsThreeDots className="text-[#B1ADA1] text-xl animate-bounce delay-150" />
+        <BsThreeDots className="text-[#B1ADA1] text-xl animate-bounce delay-300" />
+      </div>
+    )}
+  </div>
+</div>
+
+  );
+}
+
 
 export default function Page() {
   return (
-    <div className="min-h-svh w-full flex flex-col md:flex-row bg-[#F4F3EE]">
+    <div className="min-h-svh w-full flex flex-col md:flex-row bg-[#F4F3EE] font-sans">
       {/* Left: Branding and Login */}
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 md:py-0 md:px-16 bg-[#F4F3EE]">
         {/* Logo */}
         <div className="flex items-center mb-8">
-          <span className="mr-2 text-3xl" style={{ color: '#C15F3C' }}>★</span>
-          <span className="font-poppins text-2xl font-semibold text-[#222]">Comfortly</span>
+          <span className="mr-2 text-3xl" style={{ color: "#C15F3C" }}>
+            ★
+          </span>
+          <span className="font-poppins text-2xl font-semibold text-[#222]">
+            Comfortly
+          </span>
         </div>
         {/* Headline */}
         <h1 className="font-poppins text-5xl md:text-6xl font-semibold text-[#222] text-center leading-tight mb-4">
-          Your ideas,<br />amplified
+          Feel heard,<br />create freely
         </h1>
         {/* Subheading */}
-        <p className="font-montserrat text-lg text-[#222] text-center mb-8">
-          Privacy-first AI that helps you create in confidence.
+        <p className="font-montserrat text-lg text-[#222] text-center mb-8 max-w-md">
+          Your emotional co-pilot powered by private AI. Breathe, reflect, and build your best ideas.
         </p>
         {/* Login Form */}
         <div className="w-full max-w-md">
           <LoginForm />
         </div>
       </div>
-      {/* Right: Chat and Chart Mockup */}
-      <div className="hidden md:flex flex-1 flex-col items-center justify-center bg-[#F4F3EE] relative">
-        <div className="w-[420px] max-w-full p-8 rounded-2xl bg-[#F4F3EE] shadow-none">
-          {/* Chat bubble */}
-          <div className="mb-4 flex flex-col gap-2">
-            <div className="bg-[#F4F3EE] rounded-xl px-4 py-3 shadow-sm border border-[#B1ADA1] text-[#222] font-montserrat text-base w-fit self-end">
-              <span className="font-medium">Hi Comfortly! Can you visualize my mood over the week using bar graphs?</span>
-            </div>
-            <div className="bg-white rounded-xl px-4 py-3 shadow-sm border border-[#B1ADA1] text-[#222] font-montserrat text-base w-fit">
-              Here’s your mood chart.
-            </div>
-          </div>
-          {/* Chart mockup */}
-          <div className="bg-white rounded-2xl p-6 shadow border border-[#B1ADA1] mt-2">
-            <div className="font-montserrat text-base font-semibold text-[#B1ADA1] mb-2">Mood over the week</div>
-            <div className="flex items-end gap-4 h-40">
-              {/* Bar 1 */}
-              <div className="flex flex-col items-center">
-                <div className="w-8 rounded-t-lg" style={{ height: '120px', background: '#A3C1F7' }}></div>
-                <span className="text-xs text-[#B1ADA1] mt-2">Mon</span>
-              </div>
-              {/* Bar 2 */}
-              <div className="flex flex-col items-center">
-                <div className="w-8 rounded-t-lg" style={{ height: '80px', background: '#C15F3C' }}></div>
-                <span className="text-xs text-[#B1ADA1] mt-2">Tue</span>
-              </div>
-              {/* Bar 3 */}
-              <div className="flex flex-col items-center">
-                <div className="w-8 rounded-t-lg" style={{ height: '100px', background: '#F7D59C' }}></div>
-                <span className="text-xs text-[#B1ADA1] mt-2">Wed</span>
-              </div>
-              {/* Bar 4 */}
-              <div className="flex flex-col items-center">
-                <div className="w-8 rounded-t-lg" style={{ height: '60px', background: '#B1ADA1' }}></div>
-                <span className="text-xs text-[#B1ADA1] mt-2">Thu</span>
-              </div>
-              {/* Bar 5 */}
-              <div className="flex flex-col items-center">
-                <div className="w-8 rounded-t-lg" style={{ height: '40px', background: '#F4F3EE', border: '1px solid #B1ADA1' }}></div>
-                <span className="text-xs text-[#B1ADA1] mt-2">Fri</span>
-              </div>
-            </div>
-          </div>
-        </div>
+
+      {/* Right: Live Chat Preview */}
+      <div className="hidden md:flex flex-1 flex-col items-center justify-center bg-[#F4F3EE] relative px-4">
+        <h1 className="text-2xl font-bold text-[#222] mb-3 mt-6 text-center">
+          Feeling low? We're here for you 💛
+        </h1>
+        <LiveChatPreview />
       </div>
     </div>
   );
