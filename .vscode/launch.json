@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Python Server",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/server.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Launch Frontend Dev Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/comfortly-frontend"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Start Comfortly",
+      "configurations": [
+        "Launch Python Server",
+        "Launch Frontend Dev Server"
+      ],
+      "preLaunchTask": "Open Browser"
+    }
+  ],
+ 
+  
+}
